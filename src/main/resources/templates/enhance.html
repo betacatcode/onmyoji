@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>御魂师</title>
+  <link rel="stylesheet" href="/layui/css/layui.css">
+  <style type="text/css">
+    .card{
+        box-shadow: 2px 2px 5px #bbb;
+        margin-top: 50px;
+    }
+  </style>
+</head>
+<body>
+    <div th:replace="commons/header::header(activeUri='index.html')"></div>
+    <div class="layui-container card">
+        <div class="layui-row" style="margin-top: 50px">
+            <div class="layui-col-md4 layui-col-md-offset5" >
+                <div>
+                    <div class="layui-form-item" style="margin-bottom: 0">
+                        <label class="layui-form-label" style="margin-left:10px;padding: 9px 0px"><h3>[[${soul.name}]]</h3></label>
+                        <label class="layui-form-label"><h2 style="width: 60px">+[[${soul.level}]]</h2></label>
+                        <input type="hidden" th:value="${soul.level}" id="level">
+                    </div>
+                    <div class="layui-form-item"  style="margin-bottom: 0px;margin-left: 25px">
+                        <label class="layui-form-label" style="margin-left: 30px"><h2>[[${soul.position}]]号位</h2></label>
+                    </div>
+                    <img th:src="'/img/soul/'+${soul.name}+'.png'" style="margin-left:20px;height: 200px;width: 200px"/>
+                    <div style="margin-left: 70px"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"></div>
+
+                     <div class="layui-form-item" style="margin-bottom: 0;margin-left: 30px" th:each="attribute:${soul.attributes}">
+                        <label class="layui-form-label" style="padding: 9px 0px"><h3>[[${attribute.type}]]:</h3></label>
+                        <label th:if="${attribute.type}=='攻击' or ${attribute.type}=='防御' or ${attribute.type}=='生命' or ${attribute.type}=='速度'" class="layui-form-label">
+                           <h2 style="width: 60px">[[${#numbers.formatInteger(attribute.value,0)}]]</h2>
+                        </label>
+                        <label th:if="${attribute.type}=='攻击加成' or ${attribute.type}=='防御加成' or ${attribute.type}=='生命加成' or ${attribute.type}=='效果命中'or ${attribute.type}=='效果抵抗'or ${attribute.type}=='暴击'or ${attribute.type}=='暴击伤害'" class="layui-form-label">
+                            <h2 style="width: 60px">[[${#numbers.formatInteger(attribute.value,0)}]]%</h2>
+                        </label>
+                     </div>
+
+                     <div class="layui-form-item" style="margin: 20px 0px">
+                        <div id="slide" class="demo-slider"></div>
+                    </div>
+
+
+                     <div class="lay-ui-form-button" style="margin: 20px 90px">
+                        <button th:onclick="|enhance(${soul.id})|" type="button" class="layui-btn layui-btn-normal">强化</button>
+                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/layui/layui.js"></script>
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+        layui.use('slider', function(){
+          var $ = layui.$,
+          slider = layui.slider;
+          slider.render({
+              elem: '#slide',
+              step: 3, //步长
+              showstep: true,
+              min: 0,
+              max: 15,
+              theme:'#1E9FFF'
+          });
+        })
+
+        function enhance(id) {
+            var wrap=$("div.layui-slider-wrap")
+            var str1=wrap.attr('style')
+            var str2=str1.substring(str1.indexOf(' ')+1,str1.indexOf('%'))
+            var targetLevel=parseInt(str2)*1.0/100*15
+            var currentLevel=$("#level").val()
+            if(currentLevel>=targetLevel){
+                alert("强化等级需大于当前等级!")
+            }else {
+                window.location.href='enhanceSoul?id='+id+'&targetLevel='+targetLevel
+            }
+        }
+    </script>
+</body>
+</html>

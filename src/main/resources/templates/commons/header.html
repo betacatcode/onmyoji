@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+    <div th:fragment="header">
+        <ul class="layui-nav layui-bg-blue" lay-filter="">
+          <li th:class="${activeUri=='index.html'?'layui-nav-item layui-this':'layui-nav-item'}">
+          <a href="/index">持有御魂</a></li>
+          <li th:class="${activeUri=='exchange.html'?'layui-nav-item layui-this':'layui-nav-item'}">
+          <a href="/exchange">兑换御魂</a>
+          </li>
+        </ul>
+    </div>
+</body>
+</html>

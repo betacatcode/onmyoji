@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>御魂师</title>
+  <link rel="stylesheet" href="/layui/css/layui.css">
+  <style type="text/css">
+    .main.img{
+        margin: 10px 10px;
+        float: left;
+        height: 300px;
+        width: 300px;
+        box-shadow: 2px 2px 5px #bbb;
+        margin-top: 50px;
+        }
+    button{
+         margin-top: 400px;
+         margin-left: -290px;
+    }
+    .my-skin .layui-layer-btn1{
+            background-color: #fb2323;
+            color: #fff;
+    }
+  </style>
+</head>
+<body>
+     <div th:replace="commons/header::header(activeUri='exchange.html')"></div>
+
+     <div class="layui-container">
+        <div class="layui-row">
+            <div class="layui-col-md8 layui-col-md-offset4">
+                <img th:src="'/img/soul/'+${name}+'.png'" class="main">
+                <input type="hidden" id="soul" th:value="${name}">
+                <button  th:onclick="|designatedExchange(${n})|" th:each="n:${#numbers.sequence(1,6)}"  class="layui-btn layui-btn-normal" >
+                    [[${n}]]
+                </button>
+            </div>
+        </div>
+     </div>
+     <script src="/layui/layui.js"></script>
+     <script src="/js/jquery-3.3.1.min.js"></script>
+     <script>
+        function designatedExchange(pos) {
+          var name=$("#soul").val()
+          console.log(name+" "+pos)
+          $.get('designatedExchange',{"name":name,"pos":pos},function(soul) {
+              var imgSrc='/img/soul/'+soul.name+'.png'
+              var attributes=''
+              for(var i=0;i<soul.attributes.length;i++){
+
+                  var v=Math.round(soul.attributes[i].value)
+                  var t=soul.attributes[i].type
+                  if(t=='攻击加成' || t=='防御加成' || t=='生命加成' || t=='效果命中'|| t=='效果抵抗'|| t=='暴击'|| t=='暴击伤害')
+                      v+="%"
+                  attributes=attributes+'<div class="layui-form-item" style="margin-bottom: 0" >'
+                  attributes=attributes+'<label class="layui-form-label" style="padding: 9px 0px"><h3>'
+                  +t+'</h3></label>'
+                  attributes=attributes+'<label class="layui-form-label"><h2 style="width: 60px">'
+                  +v+'</h2></label></div>'
+              }
+
+              var html=
+              '<div style="margin-left: 45px">' +
+                  '<div class="layui-form-item" style="margin-bottom: 0">'+
+                   '  <label class="layui-form-label" style="padding: 9px 0px"><h3>'+soul.name+'</h3></label>'+
+                   '  <label class="layui-form-label"><h2 style="width: 60px">'+'\+'+soul.level+'</h2></label>'+
+                   '</div>'+
+                   '            <div class="layui-form-item"  style="margin-bottom: 0px;margin-left: 25px">'+
+                   '                <label class="layui-form-label"><h2>'+soul.position+'号位'+'</h2></label>'+
+                   '            </div>'+
+                   '            <img src='+imgSrc+' style="margin-left:20px;height: 140px;width: 140px"/>'+
+                   '            <div style="margin-left: 45px"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"></div>'+
+                    attributes+
+               '</div>';
+              layui.use('layer', function(){
+              var layer = layui.layer;
+              layer.open({
+                type: 1,
+                area: '300px',
+                content:html,
+                btnAlign: 'c',
+                btn:['确定','弃置'],
+                skin:'my-skin',
+                 btn1: function(index, layero){
+                    layer.closeAll()
+                  },
+                 btn2: function(index, layero){
+                    $.ajax({
+                      url:"soul/"+soul.id,
+                      type:"DELETE",
+                    })
+                    layer.closeAll()
+                 },
+              });
+            });
+        })
+        }
+    </script>
+</body>
+</html>

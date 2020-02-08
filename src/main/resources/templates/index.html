@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>御魂师</title>
+  <link rel="stylesheet" href="/layui/css/layui.css">
+  <style type="text/css">
+      li{
+        margin: 2px 2px;
+        display: inline-block;
+      }
+      button{
+        margin:10px 20px;
+      }
+</style>
+</head>
+<body>
+<div th:replace="commons/header::header(activeUri='index.html')"></div>
+<div class="layui-container">
+<div class="layui-row">
+    <div class="layui-col-md12">
+        <ul>
+         <li class="layui-bg-gray" th:each="soul:${souls.list}" th:id="'li'+${soul.id}">
+            <div class="layui-form-item" style="margin-bottom: 0">
+                 <label class="layui-form-label" style="padding: 9px 0px"><h3>[[${soul.name}]]</h3></label>
+                 <label class="layui-form-label"><h2 style="width: 60px">+[[${soul.level}]]</h2></label>
+             </div>
+            <div class="layui-form-item"  style="margin-bottom: 0px;margin-left: 25px">
+                <label class="layui-form-label"><h2>[[${soul.position}]]号位</h2></label>
+            </div>
+            <img th:src="'/img/soul/'+${soul.name}+'.png'" style="margin-left:20px;height: 140px;width: 140px"/>
+            <div style="margin-left: 45px"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"><img src="/img/star.png"></div>
+
+             <div class="layui-form-item" style="margin-bottom: 0" th:each="attribute:${soul.attributes}">
+                 <label class="layui-form-label" style="padding: 9px 0px"><h3>[[${attribute.type}]]:</h3></label>
+                 <label th:if="${attribute.type}=='攻击' or ${attribute.type}=='防御' or ${attribute.type}=='生命' or ${attribute.type}=='速度'" class="layui-form-label">
+                    <h2 style="width: 60px">[[${#numbers.formatInteger(attribute.value,0)}]]</h2>
+                 </label>
+                 <label th:if="${attribute.type}=='攻击加成' or ${attribute.type}=='防御加成' or ${attribute.type}=='生命加成' or ${attribute.type}=='效果命中'or ${attribute.type}=='效果抵抗'or ${attribute.type}=='暴击'or ${attribute.type}=='暴击伤害'" class="layui-form-label">
+                     <h2 style="width: 60px">[[${#numbers.formatInteger(attribute.value,0)}]]%</h2>
+                 </label>
+             </div>
+            <button th:onclick="|enhance(${soul.id})|" type="button" class="layui-btn-sm layui-btn">
+                 强化<i class="layui-icon layui-icon-addition"></i>
+             </button>
+            <button th:onclick="|delSoul(${soul.id})|" type="button" class="layui-btn-sm layui-btn layui-btn-danger">
+                弃置<i class="layui-icon layui-icon-close"></i>
+            </button>
+            </li>
+        </ul>
+  </div>
+</div>
+<div class="layui-row">
+    <div class="lay-col-md8 layui-col-md-offset4">
+        <br/>
+        <div class="layui-box layui-laypage layui-laypage-molv" id="layui-laypage-3">
+            <a th:if="${souls.hasPreviousPage}==false" href="javascript:;" class="layui-laypage-prev layui-disabled" style="float: left">上一页</a>
+            <a th:if="${souls.hasPreviousPage}==true" th:href="@{/index(pageNum=${souls.pageNum}-1)}" class="layui-laypage-prev" style="float: left">上一页</a>
+
+            <div th:each="n:${#numbers.sequence(1,souls.pages)}" style="float: left">
+                <span th:if="${n}==${souls.pageNum}" class="layui-laypage-curr" style="float: left">
+                    <em class="layui-laypage-em" style="background-color:#1E9FFF;"></em>
+                    <em>[[${n}]]</em>
+                </span>
+                <a th:if="${n}!=${souls.pageNum}" th:href="@{/index(pageNum=${n})}">[[${n}]]</a>
+            </div>
+
+            <a th:if="${souls.hasNextPage}==false" href="javascript:;" class="layui-laypage-next layui-disabled" style="float: left">上一页</a>
+            <a th:if="${souls.hasNextPage}==true" th:href="@{/index(pageNum=${souls.pageNum}+1)}" class="layui-laypage-next" style="float: left">下一页</a></div>
+    </div>
+</div>
+</div>
+</div>
+<script src="/layui/layui.js"></script>
+<script src="/js/jquery-3.3.1.min.js"></script>
+<script>
+    layui.use('element', function(){
+      var element = layui.element;
+    });
+
+    function delSoul(id) {
+      if(confirm('确定要弃置吗?')==true){
+          $.ajax({
+              url:"soul/"+id,
+              type:"DELETE",
+              success:function(data) {
+                if(data==200)
+                  $("#li"+id).remove();
+              }
+          })
+      }
+    }
+
+    function enhance(id) {
+        window.location.href="enhance?id="+id
+    }
+</script>
+</body>
+</html>
